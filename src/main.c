@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
 	// init_keypad(keypad_out, keypad_in);
 
 	pthread_create(&moveThread, NULL, move, &x);
+	pthread_detach(moveThread);
 
 	while( logic() == TRUE ) { 
 	}
