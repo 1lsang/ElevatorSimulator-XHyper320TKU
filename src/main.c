@@ -78,12 +78,19 @@ int main(int argc, char* argv[]) {
 	init_clcd(clcd_cmd, clcd_data);
 	// init_keypad(keypad_out, keypad_in);
 
+	pthread_create(&moveThread, NULL, move, &x);
+
 	while( logic() == TRUE ) { 
 	}
 	
 	unmapper();
 	close(fd);
 	return 0;
+}
+
+void move() {
+	printf("move\n");
+	usleep(1000000);
 }
 
 short * mapper(off_t offset, int prot) {
@@ -94,6 +101,8 @@ short * mapper(off_t offset, int prot) {
 	}
 	return (short *)map_data[map_counter++];
 }
+
+
 
 void unmapper() {
 	int i;
