@@ -17,7 +17,6 @@ void init_clcd(short * address_cmd, short * address_data) {
 	clcd_return_home();
 	clcd_display_control(D, C, B);
 	clcd_function_set(DL, N, F);
-	clcd_door_closed();
 }
 
 void clcd_write_cmd(int cmd) {
@@ -72,11 +71,12 @@ void clcd_write_string(char str[]) {
 	}
 }
 
-void clcd_door_open(int floor) {
+void clcd_door_open(int elevator_floor) {
 	clcd_clear_display();
-	char display_str[15] = "Arrived Floor:";
-	strcat(display_str,floors[floor]);
-	clcd_write_string(display_str);
+	// char display_str[15] = "Arrived Floor:";
+	// strcat(display_str,floors[elevator_floor]);
+	// clcd_write_string(display_str);
+	clcd_write_string("Door Opening");
 	usleep(0);
 }
 
@@ -92,7 +92,7 @@ void clcd_door_close() {
 	usleep(0);
 }
 
-void clcd_door_closed() {
+void clcd_press_button() {
 	clcd_clear_display();
 	clcd_write_string("Press Button..");
 	usleep(0);

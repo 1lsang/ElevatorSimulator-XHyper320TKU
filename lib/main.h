@@ -19,6 +19,14 @@
 #include "keypad.h"
 
 
+#define MAX_FLOOR 14
+// typedef struct {
+//   int *data;
+//   int size;
+//   int capacity;
+//   pthread_mutex_t mutex;
+// } inputs_t;
+
 
 typedef enum {
 	FALSE = 0,
@@ -42,8 +50,15 @@ short * mapper(off_t offset, int prot);
 void unmapper();
 void emergency_closer();
 
-truth_t logic();
+void *input();
 void input_mode();
+truth_t input_logic();
+
+
+void *elevator();
+void move_elevator();
+
+
 void open_door();
 void close_door();
 void move_up();
@@ -51,5 +66,18 @@ void move_down();
 void *move_to();
 int check();
 int get_target();
+truth_t moving();
+
+void close_door();
+void open_door();
+int get_target();
+
+// void *move(void *arg);
+// void inputs_init(inputs_t *inputs, int capacity);
+// void inputs_push(inputs_t *inputs, int value);
+// int inputs_pop(inputs_t *inputs);
+// int inputs_front(inputs_t *inputs);
+// truth_t inputs_empty(inputs_t *inputs);
+// void inputs_free(inputs_t *inputs);
 
 #endif

@@ -38,3 +38,21 @@ void dot_write(int number) {
 	}
 	usleep(0); // for Ximulator
 }
+
+void dot_open_door() {
+	int i;
+	for(i=0;i<4;i++) {//3초에 걸쳐서 문 열림
+		usleep(1000000);
+		dot_write(i);
+		//문열림 표시
+	}//도트 문 열리는 로직
+}
+
+void dot_close_door() {
+	int i;
+	for(i=3;i>=0;i--) {//3초에 걸쳐서 문 닫힘
+		usleep(1000000);
+		dot_write(i);
+		//문닫힘 표시
+	}//도트 문 닫히는 로직
+}

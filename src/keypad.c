@@ -7,10 +7,10 @@
 static short * keypad_out, * keypad_in;
 
 char keyboard[16] = {
-	'1','2','3','4',
-	'q','w','e','r',
-	'a','s','d','f',
-	'z','x','c','v'
+	'0','1','2','3','4',
+	'5','6','7','8',
+	'9','q','w',
+	'e','r','t','y'
 };
 
 void init_keypad(short * address_out, short * address_in) {
@@ -41,12 +41,14 @@ int keyboard_read(int * key_value) {
 	int i, j = 0;
 	int key_count = 0;
 	char buf[10];
+	
 	scanf("%s", buf);
 	key_count = strlen(buf);
 	//printf("key_count : %d\n", key_count);
 	if (key_count == 0) {
 		return key_count;
 	}
+
 	else {
 		for(i = 0; i < key_count; i++){
 			for (j = 0; j < 16; j++){

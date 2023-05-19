@@ -23,10 +23,10 @@ void clcd_shift(int SC, int RL);
 void clcd_function_set(int DL, int N, int F);
 void clcd_set_DDRAM(int address);
 void clcd_write_string(char str[]);
-void clcd_door_open(int floor);
+void clcd_door_open(int elevator_floor);
 void clcd_door_opened();
 void clcd_door_close();
-void clcd_door_closed();
+void clcd_press_button();
 void clcd_moving_up();
 void clcd_moving_down();
 

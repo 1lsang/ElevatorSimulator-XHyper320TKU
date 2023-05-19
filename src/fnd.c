@@ -2,7 +2,7 @@
 #include "fnd.h"
 
 static unsigned short fnd_decimal[10] = {
-	0x38, // 0
+	0x3F, // 0
 	0x06, // 1
 	0x5B, // 2
 	0x4F, // 3
@@ -22,7 +22,7 @@ void init_fnd(short * address[],int startFloor) {
 	for( i=0; i<MAX_FND; i++ ) {
 		fnd[i] = address[i];
 	}
-
+	fnd_clear();
 	fnd_number(startFloor);
 }
 
@@ -36,7 +36,7 @@ void fnd_clear() {
 void fnd_all() {
 	int i;
 	for(i=0; i<MAX_FND; i++){
-		*fnd[i] = 0xFF;
+		*fnd[i] = 0x01;
 	}
 }
 
@@ -45,9 +45,16 @@ void fnd_write(int decimal, int fnd_num) {
 }
 
 void fnd_number(unsigned long number) {
-	int i;
-	for(i=0; i<MAX_FND; i++){
-		fnd_write( (short)(number & 0xF), i);
-		number = number >> 4;
-	}
+	// int i;
+	// for(i=0; i<MAX_FND; i++){
+	// 	fnd_write( (short)(number & 0xF), i);
+	// 	number = number >> 4;
+	// }
+	// fnd_all();
+	int number1, number2;
+	number1 = number / 10;
+	number2 = number % 10;
+	fnd_write((int)number2, 3);
+	fnd_write((int)number1, 4);
+	usleep(0);
 }
