@@ -29,7 +29,7 @@ void clcd_door_close();
 void clcd_press_button();
 void clcd_moving_up();
 void clcd_moving_down();
-
+void clcd_invalid_input();
 
 
 #endif

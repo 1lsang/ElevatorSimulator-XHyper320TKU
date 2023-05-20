@@ -45,12 +45,7 @@ void fnd_write(int decimal, int fnd_num) {
 }
 
 void fnd_number(unsigned long number) {
-	// int i;
-	// for(i=0; i<MAX_FND; i++){
-	// 	fnd_write( (short)(number & 0xF), i);
-	// 	number = number >> 4;
-	// }
-	// fnd_all();
+	number++;
 	int number1, number2;
 	number1 = number / 10;
 	number2 = number % 10;

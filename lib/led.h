@@ -10,6 +10,7 @@ void init_led(short * address);
 void led_down_shift();
 void led_up_shift();
 void led_blink_all();
+void led_time();
 void led_clear();
 void led_all();
 

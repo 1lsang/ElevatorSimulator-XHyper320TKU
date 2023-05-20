@@ -39,6 +39,11 @@ void led_blink_all() {
 	}
 }
 
+void led_time(int time_cnt) {
+	*led = (short)~( ((unsigned long)0xFF << time_cnt) );
+	usleep(50000);
+}
+
 void led_clear() {
 	*led = (short)~0;
 }
