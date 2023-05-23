@@ -17,7 +17,7 @@
 #include "fnd.h"
 #include "clcd.h"
 #include "keypad.h"
-
+#include "elevator.h"
 
 #define MAX_FLOOR 14
 // typedef struct {

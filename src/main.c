@@ -179,7 +179,7 @@ void input_mode() {
 				pressed_button[key_value] = 1;
 				pthread_mutex_unlock(&mutex);
 			} 
-			else if (key_value>=max_floor || key_value==elevator_floor) {
+			else if ((key_value>=max_floor && key_value<14) || key_value==elevator_floor) {
 				clcd_invalid_input();
 			}
 			
@@ -219,6 +219,9 @@ void *elevator() {
 			// 엘리베이터 문을 열고 닫는다.
 			// 시간 초기화
 			open_door();
+			pthread_mutex_lock(&mutex);
+			time_cnt=0;
+			pthread_mutex_unlock(&mutex);
 			while (time_cnt<=8)
 				{
 					usleep(200000);
