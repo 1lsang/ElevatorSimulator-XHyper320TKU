@@ -19,24 +19,48 @@ static int time_cnt = 0;
 static int *pressed_button;
 
 
-void init_elevator(pthread_mutex_t *e_mutex, int *e_pressed_button, int *e_time_cnt, int *e_exit_program) {
+void init_elevator(pthread_mutex_t *e_mutex) {
     mutex = *e_mutex;
-    pressed_button = *e_pressed_button;
-    time_cnt = *e_time_cnt;
-    exitProgram = *e_exit_program;
+    // 눌린 버튼을 저장하는 배열 생성
+	pressed_button = (int *)malloc(sizeof(int) * max_floor);
 }
 
 void set_elevator_floor(int floor) {
     elevator_floor = floor;
 }
 
+int get_elevator_floor() {
+	return elevator_floor;
+}
+
 void set_max_floor(int floor) {
     max_floor = floor;
 }
 
+void press_button(int key_value) {
+	pthread_mutex_lock(&mutex);
+	pressed_button[key_value] = 1;
+	pthread_mutex_unlock(&mutex);
+}
+
+void exit_elevator() {
+	exitProgram = 1;
+}
+
+void exit_program() {
+	// 눌린 버튼을 저장하는 배열 해제
+	free(pressed_button);
+}
+
+void set_time_cnt(int t) {
+	pthread_mutex_lock(&mutex);
+	time_cnt=t;
+	pthread_mutex_unlock(&mutex);
+}
+
 void *elevator() {
 	while(exitProgram != 1) {
-		if (moving()==TRUE && elevator_floor==next_floor && elevator_direction!=0) {
+		if (moving()==true && elevator_floor==next_floor && elevator_direction!=0) {
 			// 엘리베이터가 도착했을 때
 			// 엘리베이터 문을 열고 닫는다.
 			// 시간 초기화
@@ -66,7 +90,7 @@ void *elevator() {
 }
 
 void move_elevator() {
-	if (moving()==TRUE) {
+	if (moving()==true) {
 		int i;
 		next_floor = get_target();
 		if (elevator_floor < next_floor) {
@@ -111,15 +135,15 @@ void close_door() {
 	clcd_press_button();
 }
 
-truth_t moving() {
+bool_t moving() {
 	int i;
 	for (i=0; i<max_floor; i++) {
 		if (pressed_button[i]==1) {
-			return TRUE;
+			return true;
 		}
 	}
 	elevator_direction = 0;
-	return FALSE;
+	return false;
 }
 
 int get_target() {

@@ -43,12 +43,12 @@ void input_mode();
 truth_t input_logic();
 
 
-void *elevator();
-void move_elevator();
-truth_t moving();
-void close_door();
-void open_door();
-int get_target();
+// void *elevator();
+// void move_elevator();
+// truth_t moving();
+// void close_door();
+// void open_door();
+// int get_target();
 
 // void *move(void *arg);
 // void inputs_init(inputs_t *inputs, int capacity);

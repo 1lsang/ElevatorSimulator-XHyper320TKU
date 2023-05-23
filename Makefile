@@ -6,7 +6,8 @@ SRCS		= ./src/main.c \
 				./src/dot.c\
 				./src/fnd.c\
 				./src/clcd.c\
-				./src/keypad.c
+				./src/keypad.c\
+				./src/elevator.c
 
 CFLAGS		= -I./lib -pthread
 
