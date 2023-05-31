@@ -8,7 +8,6 @@
 #include <unistd.h>		// close(), off_t , usleep()
 #include <sys/mman.h>	// mmap(), munmap()
 #include <stdlib.h> 	// exit()
-// #include <string.h>		// strlen()
 #include <pthread.h>
 
 #include "ieb.h"
@@ -37,25 +36,8 @@ short * mapper(off_t offset, int prot);
 void unmapper();
 void emergency_closer();
 
-
 void *input();
 void input_mode();
 truth_t input_logic();
-
-
-// void *elevator();
-// void move_elevator();
-// truth_t moving();
-// void close_door();
-// void open_door();
-// int get_target();
-
-// void *move(void *arg);
-// void inputs_init(inputs_t *inputs, int capacity);
-// void inputs_push(inputs_t *inputs, int value);
-// int inputs_pop(inputs_t *inputs);
-// int inputs_front(inputs_t *inputs);
-// truth_t inputs_empty(inputs_t *inputs);
-// void inputs_free(inputs_t *inputs);
 
 #endif

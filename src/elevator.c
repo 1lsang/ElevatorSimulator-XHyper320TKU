@@ -63,28 +63,20 @@ void *elevator() {
 		if (moving()==true && elevator_floor==next_floor && elevator_direction!=0) {
 			// 엘리베이터가 도착했을 때
 			// 엘리베이터 문을 열고 닫는다.
-			// 시간 초기화
 			open_door();
-			pthread_mutex_lock(&mutex);
-			time_cnt=0;
-			pthread_mutex_unlock(&mutex);
+			set_time_cnt(0);
 			while (time_cnt<=8)
 				{
 					usleep(200000);
-					pthread_mutex_lock(&mutex);
-					time_cnt++;
-					pthread_mutex_unlock(&mutex);
+					set_time_cnt(time_cnt+1);
 					led_time(time_cnt);
 				}
 			close_door();
-			
 			pthread_mutex_lock(&mutex);
 			pressed_button[elevator_floor] = 0;
 			pthread_mutex_unlock(&mutex);
-			
 		}
 		move_elevator();
-	
 	}
 	return NULL;
 }
