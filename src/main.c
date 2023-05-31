@@ -29,27 +29,19 @@ static void * map_data[100];
 
 // Mutex for pthread
 static pthread_mutex_t mutex;
-
 // 엘리베이터의 현재 층수
 static int elevator_floor = 0;
 // 엘리베이터의 최대 층수
 static int max_floor = MAX_FLOOR;
-// 엘리베이터의 현재 방향
-static int elevator_direction = 1; // 1 = 위, -1 = 아래, 0 = 정지
-// 엘리베이터의 다음 목적지
-static int next_floor = 0;
 // 프로그램 종료 여부
-static int exitProgram = 0; 
-// 엘리베이터 문 여닫이 시간 카운트
-static int time_cnt = 0;
-// 엘리베이터 버튼 눌림 여부
-static int *pressed_button;
+static int exit_input = 0; 
+
 
 int main(int argc, char* argv[]) {
 	int i;
 	short * led, * dot[MAX_DOT], * fnd[MAX_FND];
 	short * clcd_cmd, * clcd_data, * keypad_out, * keypad_in;
-
+	
 	fd = open("/dev/mem", O_RDWR|O_SYNC);
 	if (fd == -1) {
 		fprintf(stderr, "Cannot open /dev/mem file");
@@ -92,14 +84,13 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 	if (elevator_floor < 0) {
-			printf("The starting floor cannot be lower than 0.\n");
+			printf("The starting floor cannot be lower than 1.\n");
 			exit(0);
 		}
 	if (elevator_floor >= max_floor) {
 		printf("The starting floor cannot be higher than the maximum floor.\n");
 		exit(0);
 	}
-
 
 	// Init Hardware
 	init_led(led);
@@ -108,8 +99,9 @@ int main(int argc, char* argv[]) {
 	init_clcd(clcd_cmd, clcd_data);
 	init_keypad(keypad_out, keypad_in);
 
-	// 눌린 버튼을 저장하는 배열 생성
-	pressed_button = (int *)malloc(sizeof(int) * max_floor);
+	init_elevator(&mutex);
+	set_elevator_floor(elevator_floor);
+	set_max_floor(max_floor);
 
 	// 입력 수신 스레드 생성
 	pthread_t input_thread;
@@ -123,8 +115,7 @@ int main(int argc, char* argv[]) {
 	pthread_join(input_thread, NULL);
 	pthread_join(elevator_thread, NULL);
 	
-	// 눌린 버튼을 저장하는 배열 해제
-	free(pressed_button);
+	exit_program();
 
 	unmapper();
 	close(fd);
@@ -162,167 +153,46 @@ void *input() {
 }
 
 truth_t input_logic() {
-	if( exitProgram == 1 ) { return FALSE; }
+	if( exit_input == 1 ) { return FALSE; }
 	else { input_mode(); }
 	return TRUE;
 }
 
 void input_mode() {
 		int key_count, key_value;
+		
+		// Ximulator 입력
 		// key_count = keyboard_read(&key_value);
+
+		// 키패드 입력
 		key_count = keypad_read(&key_value);
 
 		if( key_count == 1 ) {
 			// 층 버튼
-			if (key_value < max_floor && key_value != elevator_floor) {
-				pthread_mutex_lock(&mutex);
-				pressed_button[key_value] = 1;
-				pthread_mutex_unlock(&mutex);
+			if (key_value < max_floor && key_value != get_elevator_floor()) {
+				press_button(key_value);
 			} 
-			else if ((key_value>=max_floor && key_value<14) || key_value==elevator_floor) {
+			else if ((key_value>=max_floor && key_value<14) || key_value==get_elevator_floor()) {
 				clcd_invalid_input();
 			}
 			
 			// 열림 버튼
 			if (key_value == 14) {
-				pthread_mutex_lock(&mutex);
-				time_cnt = 0;
-				pthread_mutex_unlock(&mutex);
+				set_time_cnt(0);
 			}
 
 			// 닫힘 버튼
 			if (key_value == 15) {
-				pthread_mutex_lock(&mutex);
-				time_cnt = 7;
-				pthread_mutex_unlock(&mutex);
+				set_time_cnt(8);
 			}
 
-			
 		}
 		else if( key_count > 1 ) {
-			exitProgram = 1;
+			exit_input = 1;
+			exit_program();
 		}
 
 		usleep(0);
-		// printf("key_value = %d\t key_count = %d\n", key_value, key_count);
-		// int i;
-		// for(i=0; i<max_floor; i++) {
-		// 	printf("%d ", pressed_button[i]);
-		// }
-		// printf("\n");
 }
 
-void *elevator() {
-	while(exitProgram != 1) {
-		if (moving()==TRUE && elevator_floor==next_floor && elevator_direction!=0) {
-			// 엘리베이터가 도착했을 때
-			// 엘리베이터 문을 열고 닫는다.
-			// 시간 초기화
-			open_door();
-			pthread_mutex_lock(&mutex);
-			time_cnt=0;
-			pthread_mutex_unlock(&mutex);
-			while (time_cnt<=8)
-				{
-					usleep(200000);
-					pthread_mutex_lock(&mutex);
-					time_cnt++;
-					pthread_mutex_unlock(&mutex);
-					led_time(time_cnt);
-				}
-			close_door();
-			
-			pthread_mutex_lock(&mutex);
-			pressed_button[elevator_floor] = 0;
-			pthread_mutex_unlock(&mutex);
-			
-		}
-		move_elevator();
-	
-	}
-	return NULL;
-}
 
-void move_elevator() {
-	if (moving()==TRUE) {
-		int i;
-		next_floor = get_target();
-		if (elevator_floor < next_floor) {
-			// 엘리베이터가 올라갈 때
-			elevator_direction = 1;
-			clcd_moving_up();
-			for (i = 0; i < 2; i++)
-			{
-				led_up_shift();	 // led shift
-				usleep(5000);
-			}
-			elevator_floor++;
-		} else if (elevator_floor > next_floor) {
-			// 엘리베이터가 내려갈 때
-			elevator_direction = -1;
-			clcd_moving_down();
-			for (i = 0; i < 2; i++)
-			{
-				led_down_shift();	 // led shift
-				usleep(5000);
-			}
-			elevator_floor--;
-		}
-		fnd_number(elevator_floor);
-		usleep(0);
-	}
-}
-
-void open_door() {
-	// 문이 열립니다.
-	clcd_door_open(elevator_floor);
-	led_all();
-	dot_open_door();
-	
-}
-
-void close_door() {
-	// 문이 닫힙니다.
-	clcd_door_close();
-	led_clear();
-	dot_close_door();
-	clcd_press_button();
-}
-
-truth_t moving() {
-	int i;
-	for (i=0; i<max_floor; i++) {
-		if (pressed_button[i]==1) {
-			return TRUE;
-		}
-	}
-	elevator_direction = 0;
-	return FALSE;
-}
-
-int get_target() {
-	int i;
-	if (elevator_direction==1) {
-		for(i=elevator_floor; i<max_floor; i++) {
-			if (pressed_button[i]==1) {
-				return i;
-			}
-		}
-	}
-	else if (elevator_direction==-1) {
-		for (i=elevator_floor; i>=0; i--) {
-			if (pressed_button[i]==1) {
-				return i;
-			}
-		}
-	}
-	else {
-		for (i=0; i<max_floor; i++) {
-			if (pressed_button[i]==1) {
-				return i;
-			}
-		}
-	}
-	elevator_direction = 0;
-	return elevator_floor;
-}
